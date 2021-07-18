@@ -1,0 +1,81 @@
+Private Sub UserForm_Initialize()
+    TextBox1.Value = Format(Date, "dd/mm/yyyy")
+End Sub
+
+Private Sub CommandButton1_Click()
+
+' Validation
+    If Me.TextBox1.Value = "" Then
+        MsgBox "Enter a Date"
+        Exit Sub
+    End If
+    If Me.ComboBox1.Value = "" Then
+        MsgBox "Select/Enter a Group"
+        Exit Sub
+    End If
+    If Me.TextBox2.Value = "" Then
+        MsgBox "Enter an Item"
+        Exit Sub
+    End If
+    If VBA.IsNumeric(Me.TextBox3.Value) = False Then
+        MsgBox "Enter a numeric Price"
+        Exit Sub
+    End If
+    If Me.ComboBox2.Value = "" Then
+        MsgBox "Select/Enter a Shop"
+        Exit Sub
+    End If
+
+' Update Worksheet
+Dim wks As Worksheet
+Set wks = ThisWorkbook.Sheets("DataFY")
+
+Range("A3").EntireRow.Insert
+wks.Range("A" & 3).Value = Me.TextBox1.Value
+wks.Range("B" & 3).Value = Me.ComboBox1.Value
+wks.Range("C" & 3).Value = Me.TextBox2.Value
+wks.Range("D" & 3).Value = Me.TextBox3.Value
+wks.Range("E" & 3).Value = Me.ComboBox2.Value
+wks.Range("F" & 3).Value = Me.TextBox4.Value
+
+' Sort
+Dim lastRow As Long
+lastRow = Cells(Rows.Count, 2).End(xlUp).Row
+Range("A2:F" & lastRow).Sort key1:=Range("A2:A" & lastRow), key2:=Range("B2:B" & lastRow), key3:=Range("C2:C" & lastRow), order1:=xlDescending, Header:=xlNo
+
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.TextBox1.Value = Format(Date, "dd/mm/yyyy")
+    Me.ComboBox1.Value = ""
+    Me.TextBox2.Value = ""
+    Me.TextBox3.Value = ""
+    Me.ComboBox2.Value = ""
+    Me.TextBox4.Value = ""
+End Sub
+
+Private Sub UserForm_Activate()
+    With Me.ComboBox1
+        .Clear
+        .AddItem "Food"
+        .AddItem "One Off"
+        .AddItem "Monthly"
+        .AddItem "Other"
+        .AddItem "Home"
+    End With
+    
+    With Me.ComboBox2
+        .Clear
+        .AddItem "Amazon"
+        .AddItem "Tesco"
+        .AddItem "Waitrose"
+        .AddItem "Aldi"
+        .AddItem "Lidle"
+        .AddItem "Sainsburys"
+        .AddItem "Trainline"
+        .AddItem "Railcard"
+        .AddItem "Guildford Orthodontists"
+        .AddItem "Specsavers"
+        .AddItem "Itunes"
+    End With
+End Sub
