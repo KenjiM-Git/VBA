@@ -1,0 +1,210 @@
+
+Private Sub UserForm_Initialize()
+    ComboBox3.Value = Format(Date, "dd/mm/yyyy")
+    
+    Dim wks As Worksheet
+    Set wks = ThisWorkbook.Sheets("DataFY")
+    
+    Dim i As Range, Key
+    Dim Dic As Object: Set Dic = CreateObject("Scripting.Dictionary")
+    
+    For Each i In wks.Range("A2", wks.Cells(Rows.Count, "A").End(xlUp))
+        If Not Dic.exists(i.Value) Then
+            Dic.Add i.Value, Nothing
+        End If
+    Next i
+    For Each Key In Dic
+        Me.ComboBox3.AddItem Format(Key, "dd/mm/yyyy")
+    Next
+    
+End Sub
+
+Private Sub CommandButton1_Click()
+
+' Validation
+    If Me.ComboBox3.Value = "" Then
+        MsgBox "Enter a Date"
+        Exit Sub
+    End If
+    If Me.ComboBox1.Value = "" Then
+        MsgBox "Select/Enter a Group"
+        Exit Sub
+    End If
+    If Me.ComboBox4.Value = "" Then
+        MsgBox "Enter an Item"
+        Exit Sub
+    End If
+    If VBA.IsNumeric(Me.TextBox3.Value) = False Then
+        MsgBox "Enter a numeric Price"
+        Exit Sub
+    End If
+    If Me.TextBox5.Value = "" Then
+        MsgBox "Select/Enter a Shop"
+        Exit Sub
+    End If
+
+' Update Worksheet
+    Dim wks As Worksheet
+    Set wks = ThisWorkbook.Sheets("DataFY")
+
+    Dim j As Long
+    
+    For j = 2 To wks.Cells(Rows.Count, "A").End(xlUp)
+        If Format(Range("A" & j).Value, "dd/mm/yyyy") = Me.ComboBox3.Value Then
+            If Range("B" & j).Value = Me.ComboBox1.Value Then
+                    wks.Range("A" & j).Value = Me.ComboBox3.Value
+                    wks.Range("B" & j).Value = Me.ComboBox1.Value
+                    wks.Range("C" & j).Value = Me.ComboBox4.Value
+                    wks.Range("D" & j).Value = Me.TextBox3.Value
+                    wks.Range("E" & j).Value = Me.TextBox5.Value
+                    wks.Range("F" & j).Value = Me.TextBox4.Value
+            End If
+        End If
+    Next j
+
+
+' Sort
+    Dim lastRow As Long
+    lastRow = Cells(Rows.Count, 2).End(xlUp).Row
+    Range("A2:F" & lastRow).Sort key1:=Range("A2:A" & lastRow), key2:=Range("B2:B" & lastRow), key3:=Range("C2:C" & lastRow), order1:=xlDescending, Header:=xlNo
+
+End Sub
+
+Private Sub CommandButton2_Click()
+    Me.ComboBox3.Value = Format(Date, "dd/mm/yyyy")
+    Me.ComboBox1.Value = ""
+    Me.ComboBox4.Value = ""
+    Me.TextBox3.Value = ""
+    Me.TextBox5.Value = ""
+    Me.TextBox4.Value = ""
+End Sub
+
+Private Sub ComboBox3_Change()
+' Fill in rest of form after selecting Date and item
+    Dim wks As Worksheet
+    Set wks = ThisWorkbook.Sheets("DataFY")
+    
+    'Dim i As Integer
+    
+    Me.ComboBox1.Clear
+    
+
+    Dim d As Object, i As Long, lr As Long
+    Set d = CreateObject("Scripting.Dictionary")
+    For i = 2 To wks.Cells(Rows.Count, "A").End(xlUp)
+        If Format(Range("A" & i).Value, "dd/mm/yyyy") = Me.ComboBox3.Value Then
+            d.Item(Range("B" & i).Value) = 1
+        End If
+    Next i
+    For Each Key In d
+        Me.ComboBox1.AddItem Key
+    Next
+    
+    'Dim i As Range, Key
+    'Dim Dic As Object: Set Dic = CreateObject("Scripting.Dictionary")
+    
+    'For Each i In wks.Range("A2", wks.Cells(Rows.Count, "A").End(xlUp))
+    '    If Format(i.Value, "dd/mm/yyyy") = Format(ComboBox3.Value, "dd/mm/yyyy") Then
+    '        If Not Dic.exists(i.Offset(0, 1).Value) Then
+    '            Dic.Add i.Offset(0, 1).Value
+    '        End If
+    '    End If
+    'Next i
+    'For Each Key In Dic
+    '    Me.ComboBox1.AddItem Key
+    'Next
+    
+End Sub
+
+Private Sub ComboBox1_Change()
+' Fill in rest of form after selecting Date and item
+    Dim wks As Worksheet
+    Set wks = ThisWorkbook.Sheets("DataFY")
+    
+    'Dim i As Integer
+    
+    Me.ComboBox4.Clear
+    
+    Dim d As Object, i As Long, lr As Long
+    Set d = CreateObject("Scripting.Dictionary")
+    
+    For i = 2 To wks.Cells(Rows.Count, "A").End(xlUp)
+        If Format(Range("A" & i).Value, "dd/mm/yyyy") = Me.ComboBox3.Value Then
+            If Range("B" & i).Value = Me.ComboBox1.Value Then
+                d.Item(Range("C" & i).Value) = 1
+            End If
+        End If
+    Next i
+    For Each Key In d
+        Me.ComboBox4.AddItem Key
+    Next
+    
+End Sub
+
+Private Sub ComboBox4_Change()
+
+    Dim wks As Worksheet
+    Set wks = ThisWorkbook.Sheets("DataFY")
+    
+    'Me.TextBox3.Clear
+    'Me.TextBox5.Clear
+    'Me.TextBox4.Clear
+    
+    Dim j As Long
+    
+    For j = 2 To wks.Cells(Rows.Count, "A").End(xlUp)
+        If Format(Range("A" & j).Value, "dd/mm/yyyy") = Me.ComboBox3.Value Then
+            If Range("B" & j).Value = Me.ComboBox1.Value Then
+                If Range("C" & j).Value = Me.ComboBox4.Value Then
+                    Me.TextBox3.Value = wks.Range("D" & j).Value
+                    Me.TextBox5.Value = wks.Range("E" & j).Value
+                    Me.TextBox4.Value = wks.Range("F" & j).Value
+                End If
+            End If
+        End If
+    Next j
+End Sub
+
+Private Sub UserForm_Activate()
+
+    'With Me.ComboBox1
+    '    .Clear
+    '    .AddItem "Food"
+    '    .AddItem "One Off"
+    '    .AddItem "Monthly"
+    '    .AddItem "Other"
+    '    .AddItem "Home"
+    'End With
+    
+    'With Me.ComboBox2
+    '    .Clear
+    '    .AddItem "Amazon"
+    '    .AddItem "Tesco"
+    '    .AddItem "Waitrose"
+    '    .AddItem "Aldi"
+    '    .AddItem "Lidle"
+    '    .AddItem "Sainsburys"
+    '    .AddItem "Trainline"
+    '    .AddItem "Railcard"
+    '    .AddItem "Guildford Orthodontists"
+    '    .AddItem "Specsavers"
+    '    .AddItem "Itunes"
+    'End With
+    
+    
+    
+    
+    'If Me.ComboBox3.Value <> "" Then
+
+    '    lastRow = wks.Range("A" & Rows.Count).End(xlUp).Row
+    
+    '    For i = 2 To lastRow
+    '        If wks.Range("A" & i).Value = Me.ComboBox3 Then
+    '            Me.ComboBox3.AddItem Format(wks.Range("A" & i).Value, "dd/mm/yyyy")
+    '        End If
+    '    Next
+    'End If
+    
+End Sub
+
+
